@@ -10,10 +10,11 @@ require("dotenv").config()
 
 const App: React.FC = () => {
 	const [weather, setWeather] = useState<any>({})
+	const [hour, setHour] = useState<string>("10")
 	const [sky, setSky] = useState<string>(
 		`linear-gradient(to bottom, #90dffe 0%,#38a3d1 100%)`,
 	)
-	const [city, setCity] = useState<string>("London")
+	const [city, setCity] = useState<string>("Schöneck")
 
 	useEffect(() => {
 		axios
@@ -29,7 +30,7 @@ const App: React.FC = () => {
 					"HH",
 				)
 
-				console.log(hour)
+				setHour(hour)
 
 				switch (hour) {
 					case "0":
@@ -170,45 +171,176 @@ const App: React.FC = () => {
 			background: ${sky};
 			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 		}
+
+		h1 {
+			font-size: 48px;
+			font-weight: lighter;
+			margin: 0;
+		}
+
+		small {
+			font-weight: lighter;
+			opacity: 0.6;
+		}
 	`
 
-	const Container = styled.div`
+	const Container = styled.main`
 		min-height: 100vh;
-		text-align: center;
+		width: 480px;
+		max-width: 90%;
+		margin: 3rem auto;
+		color: #fff;
 
-		ul {
-			list-style: none;
-			padding: 0;
+		&.time-08,
+		&.time-09,
+		&.time-10,
+		&.time-11,
+		&.time-12 {
+			color: #000;
+		}
+	`
+
+	const Current = styled.section`
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		border-top: 1px solid #fff;
+		border-bottom: 1px solid #fff;
+		padding: 1rem 0;
+		margin: 2rem 0;
+		img {
+			width: 64px;
+			height: 64px;
+		}
+		div {
+			text-align: right;
+		}
+		h2 {
+			font-size: 40px;
+			margin: 0;
+			font-weight: normal;
+		}
+		small {
+			font-size: 18px;
+		}
+	`
+
+	const Forecast = styled.ul`
+		list-style: none;
+		padding: 0;
+
+		li {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			margin: 1rem 0;
+		}
+		h3 {
+			margin: 0;
+			font-weight: lighter;
+		}
+		div:nth-of-type(2) {
+			flex-grow: 1;
+		}
+	`
+
+	const Icon = styled.div`
+		width: 32px;
+		margin-right: 0.5rem;
+
+		img {
+			width: 32px;
+			height: 32px;
+		}
+	`
+
+	const Temp = styled.div`
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		width: 70px;
+	`
+
+	const High = styled.span`
+		font-size: 24px;
+	`
+
+	const Low = styled.span`
+		font-size: 14px;
+		padding-top: 10px;
+		opacity: 0.6;
+	`
+
+	const Footer = styled.footer`
+		margin-top: 3rem;
+		font-size: 1rem;
+		opacity: 0.6;
+		text-align: center;
+		font-weight: lighter;
+
+		a {
+			text-decoration: none;
+			color: inherit;
+			border-bottom: 2px solid #fff;
+			transition: 0.3s;
+			&:hover {
+				border-bottom: 2px solid #000;
+			}
 		}
 	`
 
 	return (
 		<div className="App">
 			{weather.location ? (
-				<Container>
+				<Container className={`time-${hour}`}>
 					<Styles />
 					<h1>{weather.location.name}</h1>
-					<h2>{weather.current.temp_c}°C</h2>
-					<h3>{weather.current.condition.text}</h3>
-					<img
-						src={weather.current.condition.icon}
-						alt={weather.current.condition.text}
-					/>
-					<ul>
+					<small>
+						Local time:{" "}
+						<Moment
+							date={weather.location.localtime}
+							format="HH:mm"
+						/>
+					</small>
+					<Current>
+						<img
+							src={weather.current.condition.icon}
+							alt={weather.current.condition.text}
+						/>
+						<div>
+							<h2>{weather.current.temp_c}°</h2>
+							<small>{weather.current.condition.text}</small>
+						</div>
+					</Current>
+					<Forecast>
 						{weather.forecast.forecastday.map((day: any) => (
 							<li key={day.date}>
-								<h3>
-									<Moment
-										date={day.date}
-										format="dddd, Do MMMM"
+								<Icon>
+									<img
+										src={day.day.condition.icon}
+										alt={day.day.condition.text}
 									/>
-								</h3>
-								{Math.floor(day.day.mintemp_c)} -{" "}
-								{Math.ceil(day.day.maxtemp_c)} °C -
-								{day.day.condition.text}
+								</Icon>
+								<div>
+									<h3>
+										<Moment
+											date={day.date}
+											format="dddd, Do MMMM"
+										/>
+									</h3>
+									<small>{day.day.condition.text}</small>
+								</div>
+								<Temp>
+									<High>{Math.ceil(day.day.maxtemp_c)}°</High>
+									<Low>{Math.floor(day.day.mintemp_c)}°</Low>
+								</Temp>
 							</li>
 						))}
-					</ul>
+					</Forecast>
+					<Footer>
+						&copy; {new Date().getFullYear()}{" "}
+						<a href="https://herper.io/">Jacob Herper</a>
+					</Footer>
 				</Container>
 			) : (
 				<Loader />
