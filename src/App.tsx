@@ -4,6 +4,10 @@ import Moment from "react-moment"
 import moment from "moment"
 import styled, { createGlobalStyle } from "styled-components"
 
+import Currently from "./components/currently"
+import ForecastItem from "./components/forecast"
+import Footer from "./components/footer"
+import Header from "./components/header"
 import Loader from "./components/loader"
 
 require("dotenv").config()
@@ -14,7 +18,7 @@ const App: React.FC = () => {
 	const [sky, setSky] = useState<string>(
 		`linear-gradient(to bottom, #90dffe 0%,#38a3d1 100%)`,
 	)
-	const [city, setCity] = useState<string>("Schöneck")
+	const [city, setCity] = useState<string>("Berlin")
 
 	useEffect(() => {
 		axios
@@ -200,31 +204,6 @@ const App: React.FC = () => {
 		}
 	`
 
-	const Current = styled.section`
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		border-top: 1px solid #fff;
-		border-bottom: 1px solid #fff;
-		padding: 1rem 0;
-		margin: 2rem 0;
-		img {
-			width: 64px;
-			height: 64px;
-		}
-		div {
-			text-align: right;
-		}
-		h2 {
-			font-size: 40px;
-			margin: 0;
-			font-weight: normal;
-		}
-		small {
-			font-size: 18px;
-		}
-	`
-
 	const Forecast = styled.ul`
 		list-style: none;
 		padding: 0;
@@ -244,103 +223,33 @@ const App: React.FC = () => {
 		}
 	`
 
-	const Icon = styled.div`
-		width: 32px;
-		margin-right: 0.5rem;
-
-		img {
-			width: 32px;
-			height: 32px;
-		}
-	`
-
-	const Temp = styled.div`
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		width: 70px;
-	`
-
-	const High = styled.span`
-		font-size: 24px;
-	`
-
-	const Low = styled.span`
-		font-size: 14px;
-		padding-top: 10px;
-		opacity: 0.6;
-	`
-
-	const Footer = styled.footer`
-		margin-top: 3rem;
-		font-size: 1rem;
-		opacity: 0.6;
-		text-align: center;
-		font-weight: lighter;
-
-		a {
-			text-decoration: none;
-			color: inherit;
-			border-bottom: 2px solid #fff;
-			transition: 0.3s;
-			&:hover {
-				border-bottom: 2px solid #000;
-			}
-		}
-	`
-
 	return (
 		<div className="App">
 			{weather.location ? (
 				<Container className={`time-${hour}`}>
 					<Styles />
-					<h1>{weather.location.name}</h1>
-					<small>
-						Local time:{" "}
-						<Moment
-							date={weather.location.localtime}
-							format="HH:mm"
-						/>
-					</small>
-					<Current>
-						<img
-							src={weather.current.condition.icon}
-							alt={weather.current.condition.text}
-						/>
-						<div>
-							<h2>{weather.current.temp_c}°</h2>
-							<small>{weather.current.condition.text}</small>
-						</div>
-					</Current>
+					<Header
+						location={weather.location.name}
+						time={weather.location.localtime}
+					/>
+					<Currently
+						icon={weather.current.condition.icon}
+						text={weather.current.condition.text}
+						temperature={weather.current.temp_c}
+					/>
 					<Forecast>
 						{weather.forecast.forecastday.map((day: any) => (
-							<li key={day.date}>
-								<Icon>
-									<img
-										src={day.day.condition.icon}
-										alt={day.day.condition.text}
-									/>
-								</Icon>
-								<div>
-									<h3>
-										<Moment
-											date={day.date}
-											format="dddd, Do MMMM"
-										/>
-									</h3>
-									<small>{day.day.condition.text}</small>
-								</div>
-								<Temp>
-									<High>{Math.ceil(day.day.maxtemp_c)}°</High>
-									<Low>{Math.floor(day.day.mintemp_c)}°</Low>
-								</Temp>
-							</li>
+							<ForecastItem
+								key={day.date}
+								icon={day.day.condition.icon}
+								text={day.day.condition.text}
+								date={day.date}
+								maxTemp={day.day.maxtemp_c}
+								minTemp={day.day.mintemp_c}
+							/>
 						))}
 					</Forecast>
-					<Footer>
-						&copy; {new Date().getFullYear()}{" "}
-						<a href="https://herper.io/">Jacob Herper</a>
-					</Footer>
+					<Footer />
 				</Container>
 			) : (
 				<Loader />
