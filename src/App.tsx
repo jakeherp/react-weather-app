@@ -23,6 +23,7 @@ const App: React.FC = () => {
 	const [cities, setCities] = useState<string[]>([
 		"London",
 		"New York",
+		"Mexico City",
 		"Dubai",
 		"Berlin",
 		"Los Angeles",
@@ -46,7 +47,7 @@ const App: React.FC = () => {
 				setHour(hour)
 
 				switch (hour) {
-					case "0":
+					case "00":
 						setSky(`#00000c`)
 						break
 					case "01":
@@ -173,7 +174,7 @@ const App: React.FC = () => {
 			.catch(function(err) {
 				console.log(err)
 			})
-	}, [])
+	}, [city])
 
 	console.log(weather)
 
@@ -236,24 +237,57 @@ const App: React.FC = () => {
 		position: fixed;
 		top: 0;
 		right: 0;
-		width: 25vw;
-		min-width: 300px;
+		width: 300px;
+		max-width: 90%;
 		height: 100vh;
 		background: rgba(255, 255, 255, 0.95);
 		z-index: 100;
+
+		ul {
+			list-style: none;
+			padding: 0;
+			margin-top: 4rem;
+			li {
+				padding: 1rem;
+				cursor: pointer;
+				&:hover {
+					background: #eee;
+				}
+			}
+		}
+	`
+
+	const Close = styled.span`
+		font-size: 1.25rem;
+		line-height: 1;
+		cursor: pointer;
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		transition: 0.5s;
+		color: #fff;
+		&:hover {
+			opacity: 0.6;
+		}
+		z-index: 500;
 	`
 
 	return (
 		<div className="App">
-			<Drawer>
-				<nav>
-					<ul>
-						{cities.map(c => (
-							<li onClick={() => setCity(c)}>{c}</li>
-						))}
-					</ul>
-				</nav>
-			</Drawer>
+			<Close onClick={() => toggleOpen(!isOpen)}>MENU</Close>
+			{!isOpen && (
+				<Drawer>
+					<nav>
+						<ul>
+							{cities.map((c, i) => (
+								<li key={i} onClick={() => setCity(c)}>
+									{c}
+								</li>
+							))}
+						</ul>
+					</nav>
+				</Drawer>
+			)}
 			{weather.location ? (
 				<Container className={`time-${hour}`}>
 					<Styles />
