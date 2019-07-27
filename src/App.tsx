@@ -8,6 +8,8 @@ import ForecastItem from "./components/forecast"
 import Footer from "./components/footer"
 import Header from "./components/header"
 import Loader from "./components/loader"
+import Drawer from "./components/menu"
+import MenuIcon from "./components/menu-icon"
 
 require("dotenv").config()
 
@@ -176,7 +178,13 @@ const App: React.FC = () => {
 			})
 	}, [city])
 
-	console.log(weather)
+	const handleToggle = () => toggleOpen(!isOpen)
+
+	const handleSelect = (city: string) => {
+		setCity(city)
+		toggleOpen(false)
+		console.log(city)
+	}
 
 	const Styles = createGlobalStyle`
 		body {
@@ -233,64 +241,13 @@ const App: React.FC = () => {
 		}
 	`
 
-	const Drawer = styled.div`
-		position: fixed;
-		top: 0;
-		right: 0;
-		width: 300px;
-		max-width: 90%;
-		height: 100vh;
-		background: rgba(255, 255, 255, 0.95);
-		z-index: 100;
-
-		ul {
-			list-style: none;
-			padding: 0;
-			margin-top: 4rem;
-			li {
-				padding: 1rem;
-				cursor: pointer;
-				&:hover {
-					background: #eee;
-				}
-			}
-		}
-	`
-
-	const Close = styled.span`
-		font-size: 1.25rem;
-		line-height: 1;
-		cursor: pointer;
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-		transition: 0.5s;
-		color: #fff;
-		&:hover {
-			opacity: 0.6;
-		}
-		z-index: 500;
-	`
-
 	return (
 		<div className="App">
-			<Close onClick={() => toggleOpen(!isOpen)}>MENU</Close>
-			{!isOpen && (
-				<Drawer>
-					<nav>
-						<ul>
-							{cities.map((c, i) => (
-								<li key={i} onClick={() => setCity(c)}>
-									{c}
-								</li>
-							))}
-						</ul>
-					</nav>
-				</Drawer>
-			)}
+			{isOpen && <Drawer cities={cities} handleSelect={handleSelect} />}
 			{weather.location ? (
 				<Container className={`time-${hour}`}>
 					<Styles />
+					<MenuIcon isOpen={isOpen} click={() => handleToggle()} />
 					<Header
 						location={weather.location.name}
 						time={weather.location.localtime}
