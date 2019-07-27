@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react"
 import axios from "axios"
-import Moment from "react-moment"
 import moment from "moment"
 import styled, { createGlobalStyle } from "styled-components"
 
@@ -18,7 +17,17 @@ const App: React.FC = () => {
 	const [sky, setSky] = useState<string>(
 		`linear-gradient(to bottom, #90dffe 0%,#38a3d1 100%)`,
 	)
-	const [city, setCity] = useState<string>("Berlin")
+	const [city, setCity] = useState<string>("London")
+
+	const [isOpen, toggleOpen] = useState<boolean>(false)
+	const [cities, setCities] = useState<string[]>([
+		"London",
+		"New York",
+		"Dubai",
+		"Berlin",
+		"Los Angeles",
+		"Sydney",
+	])
 
 	useEffect(() => {
 		axios
@@ -223,8 +232,28 @@ const App: React.FC = () => {
 		}
 	`
 
+	const Drawer = styled.div`
+		position: fixed;
+		top: 0;
+		right: 0;
+		width: 25vw;
+		min-width: 300px;
+		height: 100vh;
+		background: rgba(255, 255, 255, 0.95);
+		z-index: 100;
+	`
+
 	return (
 		<div className="App">
+			<Drawer>
+				<nav>
+					<ul>
+						{cities.map(c => (
+							<li onClick={() => setCity(c)}>{c}</li>
+						))}
+					</ul>
+				</nav>
+			</Drawer>
 			{weather.location ? (
 				<Container className={`time-${hour}`}>
 					<Styles />

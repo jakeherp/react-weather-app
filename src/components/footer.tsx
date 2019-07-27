@@ -34,6 +34,7 @@ const Footer = () => {
 				href="https://www.apixu.com/"
 				title="Free Weather API"
 				target="_blank"
+				rel="noopener noreferrer"
 			>
 				<img
 					src="//cdn.apixu.com/v4/images/apixu-logo-1.png"
