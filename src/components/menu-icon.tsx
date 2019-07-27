@@ -7,6 +7,13 @@ interface IProps {
 	click: any
 }
 
+const Icon = styled(animated.svg)`
+	position: fixed;
+	top: 1rem;
+	right: 1rem;
+	z-index: 1000;
+`
+
 const MenuIcon = ({ isOpen, click }: IProps) => {
 	const openedTransformationConfig = {
 		top: "translate(2, 7) rotate(0)",
@@ -26,13 +33,6 @@ const MenuIcon = ({ isOpen, click }: IProps) => {
 		to: isOpen ? closedTransformationConfig : openedTransformationConfig,
 		config: config.stiff,
 	})
-
-	const Icon = styled(animated.svg)`
-		position: fixed;
-		top: 1rem;
-		right: 1rem;
-		z-index: 1000;
-	`
 
 	return (
 		<Icon

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import axios from "axios"
 import moment from "moment"
 import styled, { createGlobalStyle } from "styled-components"
+import { useSpring } from "react-spring"
 
 import Currently from "./components/currently"
 import ForecastItem from "./components/forecast"
@@ -13,6 +14,41 @@ import MenuIcon from "./components/menu-icon"
 
 require("dotenv").config()
 
+const Container = styled.main`
+	min-height: 100vh;
+	width: 480px;
+	max-width: 90%;
+	margin: 3rem auto;
+	color: #fff;
+
+	&.time-08,
+	&.time-09,
+	&.time-10,
+	&.time-11,
+	&.time-12 {
+		color: #000;
+	}
+`
+
+const Forecast = styled.ul`
+	list-style: none;
+	padding: 0;
+
+	li {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		margin: 1rem 0;
+	}
+	h3 {
+		margin: 0;
+		font-weight: lighter;
+	}
+	div:nth-of-type(2) {
+		flex-grow: 1;
+	}
+`
+
 const App: React.FC = () => {
 	const [weather, setWeather] = useState<any>({})
 	const [hour, setHour] = useState<string>("10")
@@ -20,7 +56,7 @@ const App: React.FC = () => {
 		`linear-gradient(to bottom, #90dffe 0%,#38a3d1 100%)`,
 	)
 	const [city, setCity] = useState<string>("London")
-
+	const [input, setInput] = useState("")
 	const [isOpen, toggleOpen] = useState<boolean>(false)
 	const [cities, setCities] = useState<string[]>([
 		"London",
@@ -31,6 +67,27 @@ const App: React.FC = () => {
 		"Los Angeles",
 		"Sydney",
 	])
+
+	const Styles = createGlobalStyle`
+		body {
+			margin: 0;
+			min-height: 100vh;
+			background: ${sky};
+			transition: 0.3s;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+		}
+
+		h1 {
+			font-size: 48px;
+			font-weight: lighter;
+			margin: 0;
+		}
+
+		small {
+			font-weight: lighter;
+			opacity: 0.6;
+		}
+	`
 
 	useEffect(() => {
 		axios
@@ -180,70 +237,40 @@ const App: React.FC = () => {
 
 	const handleToggle = () => toggleOpen(!isOpen)
 
-	const handleSelect = (city: string) => {
-		setCity(city)
-		toggleOpen(false)
-		console.log(city)
+	const handleSelect = (city: string) => setCity(city)
+
+	const handleInput = (e: React.ChangeEvent<HTMLInputElement>): void =>
+		setInput(e.target.value)
+
+	const handleSubmit = (e: React.ChangeEvent<HTMLInputElement>): void => {
+		e.preventDefault()
+
+		if (input.length > 3) {
+			setCity(input)
+			setCities([...cities, input])
+			setInput("")
+		}
 	}
 
-	const Styles = createGlobalStyle`
-		body {
-			margin: 0;
-			min-height: 100vh;;
-			background: ${sky};
-			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-		}
-
-		h1 {
-			font-size: 48px;
-			font-weight: lighter;
-			margin: 0;
-		}
-
-		small {
-			font-weight: lighter;
-			opacity: 0.6;
-		}
-	`
-
-	const Container = styled.main`
-		min-height: 100vh;
-		width: 480px;
-		max-width: 90%;
-		margin: 3rem auto;
-		color: #fff;
-
-		&.time-08,
-		&.time-09,
-		&.time-10,
-		&.time-11,
-		&.time-12 {
-			color: #000;
-		}
-	`
-
-	const Forecast = styled.ul`
-		list-style: none;
-		padding: 0;
-
-		li {
-			display: flex;
-			flex-direction: row;
-			justify-content: space-between;
-			margin: 1rem 0;
-		}
-		h3 {
-			margin: 0;
-			font-weight: lighter;
-		}
-		div:nth-of-type(2) {
-			flex-grow: 1;
-		}
-	`
+	const navAnimation = useSpring({
+		transform: isOpen
+			? `translate3d(10%, 0, 0)`
+			: `translate3d(100%, 0, 0)`,
+		config: {
+			tension: 450,
+		},
+	})
 
 	return (
 		<div className="App">
-			{isOpen && <Drawer cities={cities} handleSelect={handleSelect} />}
+			<Drawer
+				style={navAnimation}
+				cities={cities}
+				handleSelect={handleSelect}
+				input={input}
+				handleInput={handleInput}
+				handleSubmit={handleSubmit}
+			/>
 			{weather.location ? (
 				<Container className={`time-${hour}`}>
 					<Styles />
